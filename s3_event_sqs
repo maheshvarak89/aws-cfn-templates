@@ -1,0 +1,61 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Uploading an object to S3 bucket triggers a SQS.
+
+Parameters:
+  Bucketname:
+    Description: S3 Bucket name
+    Type: String
+  Queuename:
+    Type: String
+    Description: SQS Queue name
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DependsOn:
+      - MyQueue
+      - QueuePolicy
+    Properties:
+      BucketName: !Ref Bucketname
+      NotificationConfiguration:
+        QueueConfigurations:
+        - Event: 's3:ObjectCreated:Put'
+          Queue: !Join [ "", [ "arn:aws:sqs:::", !Ref Queuename ] ]
+  QueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    DependsOn: MyQueue
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action:
+              - SQS:SendMessage
+            Resource: !Join [ "", [ "arn:aws:sqs:::", !Ref Queuename ] ]
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Join [ "", ["arn:aws:s3:*:*:", !Ref Bucketname ] ]
+      Queues:
+        - !Ref MyQueue
+
+  MyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      DelaySeconds: 0
+      MaximumMessageSize: 262144
+      MessageRetentionPeriod: 864000
+      QueueName: !Ref Queuename
+      ReceiveMessageWaitTimeSeconds: 0
+      VisibilityTimeout: 90
+
+Outputs:
+  S3Bucket:
+    Value: !Ref S3Bucket
+    Description: S3 Bucket for object storage
+  SQSQueue:
+    Value: !Ref MyQueue
+    Description: SQS Queue
