@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This CFT is to create EC2 instance in AWS"
+Parameters:
+  SSHKey:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: "SSH into EC2 instance"
+Resources:
+  DummyServer:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: "ami-0ed9277fb7eb570c9"
+      InstanceType: t2.micro
+      KeyName: !Ref SSHKey
