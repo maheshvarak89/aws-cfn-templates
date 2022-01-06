@@ -4,10 +4,25 @@ Parameters:
   SSHKey:
     Type: AWS::EC2::KeyPair::KeyName
     Description: "SSH into EC2 instance"
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: "VPC ID"
 Resources:
   DummyServer:
-    Type: "AWS::EC2::Instance"
+    Type: AWS::EC2::Instance
     Properties:
-      ImageId: "ami-0ed9277fb7eb570c9"
+      ImageId: ami-0ed9277fb7eb570c9
       InstanceType: t2.micro
       KeyName: !Ref SSHKey
+      SecurityGroups:
+        - !Ref  SSHSecurityGroup
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
