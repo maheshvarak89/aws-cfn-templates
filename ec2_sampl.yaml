@@ -15,7 +15,7 @@ Resources:
       InstanceType: t2.micro
       KeyName: !Ref SSHKey
       SecurityGroups:
-        - !Ref  SSHSecurityGroup
+      - !Ref SSHSecurityGroup
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
