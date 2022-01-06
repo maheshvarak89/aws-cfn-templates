@@ -7,15 +7,21 @@ Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: "VPC ID"
+  EC2ImageID:
+    Type: AWS::EC2::Image::Id
+    Description: "EC2 Image ID"
 Resources:
   DummyServer:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: ami-0ed9277fb7eb570c9
+      ImageId: !Ref EC2ImageID
       InstanceType: t2.micro
       KeyName: !Ref SSHKey
-      SecurityGroups:
-      - !Ref SSHSecurityGroup
+      SecurityGroupIds:
+        - !GetAtt
+          - SSHSecurityGroup
+          - GroupId
+
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
